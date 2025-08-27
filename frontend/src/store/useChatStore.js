@@ -35,10 +35,32 @@ export const useChatStore = create((set, get) => ({
   },
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
+    
+    // Create temporary message with loading state
+    const tempMessage = {
+      _id: Date.now().toString(),
+      text: messageData.text,
+      image: messageData.image,
+      senderId: useAuthStore.getState().authUser._id,
+      receiverId: selectedUser._id,
+      createdAt: new Date().toISOString(),
+      isLoading: true
+    };
+    
+    // Add message immediately to UI
+    set({ messages: [...messages, tempMessage] });
+    
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      // Replace temp message with real message
+      set({ 
+        messages: messages.map(msg => 
+          msg._id === tempMessage._id ? res.data : msg
+        ).concat(res.data._id !== tempMessage._id ? [res.data] : [])
+      });
     } catch (error) {
+      // Remove temp message on error
+      set({ messages: messages.filter(msg => msg._id !== tempMessage._id) });
       toast.error(error.response.data.message);
     }
   },

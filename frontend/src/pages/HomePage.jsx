@@ -9,12 +9,18 @@ const HomePage = () => {
 
   return (
     <div className="h-screen bg-base-200">
-      <div className="flex items-center justify-center pt-20 px-4">
+      <div className="flex items-center justify-center pt-20 px-2 sm:px-4">
         <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
           <div className="flex h-full rounded-lg overflow-hidden">
-            <Sidebar />
+            {/* Mobile: Hide sidebar when chat is selected, Desktop: Always show */}
+            <div className={`${selectedUser ? 'hidden lg:flex' : 'flex'} flex-shrink-0`}>
+              <Sidebar />
+            </div>
 
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            {/* Mobile: Show chat when selected, Desktop: Always show */}
+            <div className={`flex-1 ${selectedUser ? 'flex' : 'hidden lg:flex'}`}>
+              {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            </div>
           </div>
         </div>
       </div>
